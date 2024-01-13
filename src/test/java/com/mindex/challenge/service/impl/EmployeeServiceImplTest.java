@@ -1,5 +1,6 @@
 package com.mindex.challenge.service.impl;
 
+import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,6 +27,8 @@ public class EmployeeServiceImplTest {
 
     private String employeeUrl;
     private String employeeIdUrl;
+    private String compensationPostUrl;
+    private String compensationGetUrl;
 
     @Autowired
     private EmployeeService employeeService;
@@ -37,7 +42,10 @@ public class EmployeeServiceImplTest {
     @Before
     public void setup() {
         employeeUrl = "http://localhost:" + port + "/employee";
-        employeeIdUrl = "http://localhost:" + port + "/employee/{id}";
+        employeeIdUrl = "http://localhost:" + port + "/employee/{employeeId}";
+        compensationPostUrl = "http://localhost:" + port + "/employee/compensation";
+        compensationGetUrl = "http://localhost:" + port + "/employee/compensation/{employeeId}";
+
     }
 
     @Test
@@ -58,6 +66,8 @@ public class EmployeeServiceImplTest {
         // Read checks
         Employee readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
         assertEquals(createdEmployee.getEmployeeId(), readEmployee.getEmployeeId());
+        assertEquals(createdEmployee.getFirstName(), readEmployee.getFirstName());
+
         assertEmployeeEquivalence(createdEmployee, readEmployee);
 
 
@@ -82,5 +92,22 @@ public class EmployeeServiceImplTest {
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getDepartment(), actual.getDepartment());
         assertEquals(expected.getPosition(), actual.getPosition());
+    }
+
+    @Test
+    public void testCreateAndGetCompensation() {
+        Compensation testCompensation = new Compensation();
+        testCompensation.setEmployeeId("123");
+        testCompensation.setEffectiveDate(LocalDate.of(2024, 1, 1));
+        testCompensation.setSalary(50000);
+
+        Compensation postComp = restTemplate.postForEntity(compensationPostUrl,testCompensation, Compensation.class).getBody();
+
+        assertEquals(50000, postComp.getSalary(), 0.001);
+        assertEquals("123", postComp.getEmployeeId());
+        assertEquals(LocalDate.of(2024, 1, 1), postComp.getEffectiveDate());
+
+        Compensation getComp = restTemplate.getForEntity(compensationGetUrl,Compensation.class, "123").getBody();
+        assertEquals("123", getComp.getEmployeeId());
     }
 }

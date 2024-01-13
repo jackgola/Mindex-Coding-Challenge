@@ -1,5 +1,6 @@
 package com.mindex.challenge.controller;
 
+import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
@@ -20,19 +21,36 @@ public class EmployeeController {
 
         return employeeService.create(employee);
     }
+    /*
+        Task 2 Compensation POST endpoint
+     */
+    @PostMapping("/employee/compensation")
+    public Compensation setCompensation(@RequestBody Compensation compensation) {
+        LOG.debug("Received compensation create request");
 
-    @GetMapping("/employee/{id}")
-    public Employee read(@PathVariable String id) {
-        LOG.debug("Received employee create request for id [{}]", id);
-
-        return employeeService.read(id);
+        return employeeService.createCompensation(compensation);
+    }
+    /*
+        Task 2 Compensation GET endpoint
+     */
+    @GetMapping("/employee/compensation/{employeeId}")
+    public Compensation getCompensation(@PathVariable String employeeId) {
+        LOG.debug("Received compensation request for id [{}]", employeeId);
+        return employeeService.getCompensation(employeeId);
     }
 
-    @PutMapping("/employee/{id}")
-    public Employee update(@PathVariable String id, @RequestBody Employee employee) {
-        LOG.debug("Received employee create request for id [{}] and employee [{}]", id, employee);
+    @GetMapping("/employee/{employeeId}")
+    public Employee read(@PathVariable String employeeId) {
+        LOG.debug("Received employee create request for id [{}]", employeeId);
 
-        employee.setEmployeeId(id);
+        return employeeService.read(employeeId);
+    }
+
+    @PutMapping("/employee/{employeeId}")
+    public Employee update(@PathVariable String employeeId, @RequestBody Employee employee) {
+        LOG.debug("Received employee create request for id [{}] and employee [{}]", employeeId, employee);
+
+        employee.setEmployeeId(employeeId);
         return employeeService.update(employee);
     }
 }
